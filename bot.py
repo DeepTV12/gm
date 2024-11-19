@@ -12,7 +12,7 @@ def read_init_data(file_path='data.txt'):
     with open(file_path, 'r') as file:
         return file.read().strip()
 
-# دالة تسجيل الدخول
+# Login function
 def login(intdata):
     url = "https://api.goblinmine.game/graphql"
     payload = {
@@ -48,7 +48,6 @@ def login(intdata):
     print(Fore.RED + "Login failed.")
     return None, None
 
-# دالة لطباعة رسالة الترحيب
 
 
 def get_bronze_world_balance(token):
@@ -243,7 +242,7 @@ def CatchWork(token):
             for miner in unavailable_miners:
                 file.write(f"{miner.get('id')}\n")
 
-        print(f"تم استخراج وكتابة {len(unavailable_miners)} من miners غير المتاحين إلى الملف firstbuy.txt.txt'")
+        print(f"extracted {len(unavailable_miners)} to file firstbuy.txt.txt'")
 
     except requests.exceptions.RequestException as e:
         print(f"Request error: {e}")
@@ -634,7 +633,7 @@ def read_miner_level_id(file_path, index):
             else:
                 return None  # إذا كانت هناك قيم أكثر
     except FileNotFoundError:
-        print(f"الملف {file_path} غير موجود.")
+        print(f"file {file_path} not found.")
         return None
         
 def get_inventory(token):
@@ -1516,7 +1515,7 @@ def buy_miner_level(token, file_path, index):
     # جلب minerLevelId من الملف
     miner_level_id = read_miner_level_id(file_path, index)
     if miner_level_id is None:
-        print("لا توجد قيم لقراءة minerLevelId أو تم الوصول إلى النهاية.")
+        print("can't read minerLevelId or you finished them.")
         return None
 
     # تجهيز البيانات للطلب
@@ -1550,8 +1549,8 @@ def buy_miner_level(token, file_path, index):
 
     # التحقق من الاستجابة
     if response.status_code == 400:
-        print(f"حدث خطأ في الطلب: {response.status_code}")
-        print(f"محتوى الاستجابة: {response.text}")
+        print(f"error in request: {response.status_code}")
+        print(f"response content: {response.text}")
         return None
 
     if response.status_code == 200:
@@ -1562,12 +1561,12 @@ def buy_miner_level(token, file_path, index):
             # التحقق من وجود البيانات المطلوبة
             data = response_data.get("data", {})
             if not data:
-                print("لا توجد بيانات في الاستجابة.")
+                print("no data in response.")
                 return None
 
             buy_miner_level = data.get("buyMinerLevel", {})
             if not buy_miner_level:
-                print("لا توجد بيانات buyMinerLevel في الاستجابة.")
+                print("no data buyMinerLevel in response.")
                 return None
 
             # استخراج الرسالة
@@ -1609,10 +1608,10 @@ def buy_miner_level(token, file_path, index):
                 TNT(token)
 
         except json.JSONDecodeError:
-            print("فشل في تحويل الاستجابة إلى JSON.")
+            print("failed to jsonify data JSON.")
     else:
-        print(f"حدث خطأ غير معروف في الطلب: {response.status_code}")
-        print(f"محتوى الاستجابة: {response.text}")
+        print(f"unexpected error in response: {response.status_code}")
+        print(f"reponse content : {response.text}")
 
     return miner_level_id
 
@@ -1658,7 +1657,7 @@ def fetch_and_save_upgrade_ids(token):
         for id_value in ids_with_disabled_false:
             file.write(f"{id_value}\n")
 
-    print("تم حفظ IDs بنجاح في ملف upgrademine.txt")
+    print("IDs saved in upgrademine.txt")
 
 
 
@@ -1673,7 +1672,7 @@ def process_upgrade(token):
 
         # إذا كانت القائمة فارغة
         if not upgrade_ids:
-            print(Fore.RED + "لا يوجد أي IDs للمعالجة.")
+            print(Fore.RED + "No  IDs to process.")
             return
 
         # تحميل الموضع الحالي من ملف آخر
@@ -1685,7 +1684,7 @@ def process_upgrade(token):
 
         # التحقق من الموضع الحالي
         if current_position >= len(upgrade_ids):
-            print(Fore.YELLOW + "تم الوصول إلى نهاية قائمة IDs. سيتم البدء من جديد.")
+            print(Fore.YELLOW + "we have reached the end of the list IDs. we will start from the beginning.")
             current_position = 0
 
         # الحصول على ID الحالي
@@ -1734,12 +1733,12 @@ def process_upgrade(token):
 
                 # التحقق من وجود البيانات المطلوبة
                 if not upgrade_data:
-                    print(Fore.YELLOW + "لم يتم العثور على بيانات الترقية في الاستجابة.")
+                    print(Fore.YELLOW + "No upgrade data in the response.")
                     return
 
                 # استخراج التفاصيل
-                message = upgrade_data.get("message", "لم يتم العثور على الرسالة.")
-                status = upgrade_data.get("status", "غير معروف")
+                message = upgrade_data.get("message", "no message received.")
+                status = upgrade_data.get("status", "unknown")
                 
 
                 # طباعة النتائج
@@ -1750,17 +1749,17 @@ def process_upgrade(token):
                 
 
             except json.JSONDecodeError:
-                print(Fore.RED + "فشل في تحويل الاستجابة إلى JSON.")
+                print(Fore.RED + "failed to jsonify response JSON.")
         else:
-            print(Fore.RED + f"حدث خطأ: {response.status_code}")
-            print(Fore.YELLOW + f"تفاصيل الخطأ: {response.text}")
+            print(Fore.RED + f"error: {response.status_code}")
+            print(Fore.YELLOW + f"error detail: {response.text}")
 
     except FileNotFoundError:
-        print(Fore.RED + "الملف 'upgrademine.txt' غير موجود.")
+        print(Fore.RED + "file 'upgrademine.txt' not found.")
     except ValueError as ve:
-        print(Fore.RED + f"خطأ في تحويل ID إلى رقم: {ve}")
+        print(Fore.RED + f"failed to convert ID to number: {ve}")
     except Exception as e:
-        print(Fore.RED + f"حدث خطأ غير متوقع: {e}")
+        print(Fore.RED + f"unexpected error: {e}")
 
 # دالة رئيسية لاستدعاء الدالة مع الـ token
 # متغير خارجي لحفظ الحالة
@@ -1966,9 +1965,9 @@ def fetch_task_ids(token):
             for task_id in task_ids:
                 file.write(f"{task_id}\n")
         
-        print("تم حفظ task IDs في الملف taskId.txt.")
+        print(" task IDs saved in taskId.txt.")
     else:
-        print("لم يتم العثور على بيانات المهام في الاستجابة.")
+        print("no task data were found .")
 
 # استدعاء الدالة
 
@@ -1979,7 +1978,7 @@ def check_all_task_statuses(token,file_path="taskId.txt"):
         with open(file_path, "r") as file:
             task_ids = [line.strip() for line in file if line.strip()]
     except FileNotFoundError:
-        print("الملف taskId.txt غير موجود.")
+        print("file taskId.txt not found.")
         return
 
     # إعدادات الطلب
@@ -2101,7 +2100,7 @@ def extract_and_save_miner_ids(token):
                 miner_id = miner.get('id')  # استخراج ID المعدن
                 file.write(f"{miner_id}\n")  # كتابة الـ ID في الملف
 
-    print("تم إضافة الأيدي إلى الملف soltid.txt")
+    print("Id added to file soltid.txt")
        
 
 # استدعاء الدالة مع إدخال التوكن
